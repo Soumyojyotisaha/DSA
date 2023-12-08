@@ -1,0 +1,21 @@
+  bool checkPrime(int number)
+    {
+        if(number < 2) return false;
+        for(int i = 2;i <= sqrt(number);i++)
+        {
+            if((number % i) == 0) return false;
+        }
+        return true;
+    }
+    int minNumber(int arr[],int N)
+    {
+        int currsum = accumulate(arr,arr+N,0);
+        if(checkPrime(currsum)) return 0;
+        
+        int i = 1;
+        while(!checkPrime(currsum + i))
+        {
+            i++;
+        }
+        return i;
+    }
