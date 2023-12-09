@@ -1,0 +1,53 @@
+//{ Driver Code Starts
+
+#include <bits/stdc++.h>
+using namespace std;
+
+// } Driver Code Ends
+
+class Solution {
+public:
+    static int digitSum(int n){
+        int sum = 0;
+        while(n > 0){
+            sum += n % 10;
+            n /= 10;
+        }
+        return sum;
+    }
+    
+    static int smithNum(int n) {
+        int sum = digitSum(n);
+        bool flag = false;  // Use bool instead of boolean
+        for(int i = 2; i * i <= n; i++){
+            while(n % i == 0){
+                flag = true;
+                sum -= digitSum(i);
+                n /= i;
+            }
+        }
+        if(n != 1)
+            sum -= digitSum(n);
+        
+        if(flag == true && sum == 0) 
+            return 1;
+        
+        return 0;
+    }
+};
+
+//{ Driver Code Starts.
+int main() {
+    int t;
+    cin >> t;
+    while (t--) {
+        int n;
+        
+        cin>>n;
+
+        Solution ob;
+        cout << ob.smithNum(n) << endl;
+    }
+    return 0;
+}
+// } Driver Code Ends
