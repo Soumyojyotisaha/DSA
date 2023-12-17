@@ -1,0 +1,21 @@
+int findMaxSum(int *arr, int n) {
+	    // code here
+	    if(n==1)return arr[0];
+	    vector<int> v(n,0);
+	    
+	    v[0] = arr[0];
+	    v[1] = arr[1];
+	    
+	    for(int i=2;i<n;i++){
+	        if(i==2){
+	           v[2] = arr[i] + v[0]; 
+	        }
+	        else{
+	            v[i] =  arr[i] + max(v[i-2], v[i-3]);
+	        }
+	    }
+	    
+	    int ans = *max_element(v.begin(), v.end());
+	    
+	    return ans;
+	}
