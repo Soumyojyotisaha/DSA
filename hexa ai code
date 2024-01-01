@@ -1,0 +1,61 @@
+const constant = require("../../../constants/dialogflow");
+const { SessionsClient } = require("@google-cloud/dialogflow-cx");
+const serviceAccount = require("./key.json");
+
+const client = new SessionsClient({
+  apiEndpoint: constant.DIALOGFLOW.API_ENDPOINT,
+  credentials: serviceAccount,
+});
+
+const languageCode = constant.DIALOGFLOW.LANGUAGE_CODE;
+
+export default async function handler(req, res) {
+  try {
+    if (req.method !== "POST")
+      return res.status(404).json({ error: `Error: Route not found.` });
+    const sessionId =
+      req.body?.sessionId || Math.random().toString(36).substring(7);
+
+    const generatedSessionPath = client.projectLocationAgentSessionPath(
+      constant.DIALOGFLOW.PROJECT_ID,
+      constant.DIALOGFLOW.LOCATION,
+      constant.DIALOGFLOW.AGENT_ID,
+      sessionId
+    );
+
+    const generatedSessionPathArray = generatedSessionPath.split("sessions");
+
+    const sessionPath =
+      generatedSessionPathArray[0] +
+      "environments/" +
+      constant.DIALOGFLOW.ENVIRONMENT +
+      "/sessions" +
+      generatedSessionPathArray[1];
+
+    if (!req.body?.query)
+      return res.status(400).json({ error: `Error: Bad Request.` });
+
+    const request = {
+      session: sessionPath,
+      queryInput: {
+        text: {
+          text: req.body?.query,
+        },
+        languageCode,
+      },
+    };
+
+    const [cxResponse] = await client.detectIntent(request);
+
+    return res.status(200).json({
+      message: {
+        intent: cxResponse?.queryResult?.match?.intent?.displayName,
+        page: cxResponse?.queryResult?.currentPage?.displayName,
+        messages: cxResponse?.queryResult?.responseMessages,
+        sessionId: sessionId,
+      },
+    });
+  } catch (err) {
+    return res.status(500).json({ error: `${err}` });
+  }
+}
